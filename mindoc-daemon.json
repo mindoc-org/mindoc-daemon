@@ -1,0 +1,16 @@
+{
+    "Name": "MinDoc",
+    "DisplayName": "MinDoc",
+    "Description": "A document online management program.",
+    
+    "Dir": "E:\\own\\go\\mindoc",
+    "Exec": "E:\\own\\go\\mindoc\\mindoc_windows_amd64.exe",
+    "Args": [],
+    "Env": [
+        "MINDOC_RUN_MODE=dev",
+        "MINDOC_HIGHLIGHT_STYLE=github"
+    ],
+    
+    "Stderr": "",
+    "Stdout": ""
+}
