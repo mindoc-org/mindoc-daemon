@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	// "time"
+	"strings"
 
 	"github.com/kardianos/service"
 )
@@ -34,46 +34,6 @@ type program struct {
 
 	cmd *exec.Cmd
 }
-
-// func (p *program) runMindoc() {
-// 	// 获取命令行参数
-// 	cwd := os.Args[1] // mindoc运行目录
-// 	cmd := os.Args[2] // mindoc命令
-
-// 	// 连续尝试次数
-// 	retries := 0
-// 	maxRetries := 5
-
-// 	for {
-// 		// 执行mindoc命令
-// 		cmd := exec.Command(cmd, cwd)
-// 		cmd.Stdout = os.Stdout
-// 		cmd.Stderr = os.Stderr
-// 		err := cmd.Start()
-// 		if err != nil {
-// 			fmt.Println(err)
-// 			return
-// 		}
-
-// 		// cmd.Process.Kill()
-
-// 		// 等待mindoc运行结束,或发生错误
-// 		err = cmd.Wait()
-// 		if err != nil {
-// 			retries++
-// 			fmt.Printf("mindoc exited with error, retrying (%d/%d)...\n", retries, maxRetries)
-// 			time.Sleep(5 * time.Second)
-// 		} else {
-// 			retries = 0
-// 		}
-
-// 		// 超过最大重试次数,退出
-// 		if retries > maxRetries {
-// 			fmt.Println(" mindoc max retries exceeded, exiting!")
-// 			return
-// 		}
-// 	}
-// }
 
 func (p *program) run() {
 	logger.Info("Starting ", p.DisplayName)
@@ -132,10 +92,6 @@ func (p *program) Start(s service.Service) error {
 	return nil
 }
 
-// func (p *program) Restart(s service.Service) error {
-// 	return nil
-// }
-
 func (p *program) Stop(s service.Service) error {
 	// 停止mindoc-daemon
 	close(p.exit)
@@ -149,14 +105,6 @@ func (p *program) Stop(s service.Service) error {
 	return nil
 }
 
-// func (p *program) Install(s service.Service) error {
-// 	return nil
-// }
-
-// func (p *program) Uninstall(s service.Service) error {
-// 	return nil
-// }
-
 func getConfigPath() (string, error) {
 	fullexecpath, err := os.Executable()
 	if err != nil {
@@ -166,7 +114,8 @@ func getConfigPath() (string, error) {
 	dir, execname := filepath.Split(fullexecpath)
 	ext := filepath.Ext(execname)
 	name := execname[:len(execname)-len(ext)]
-
+	name = strings.TrimSuffix(name, "_386")
+	name = strings.TrimSuffix(name, "_amd64")
 	return filepath.Join(dir, name+".json"), nil
 }
 
@@ -201,35 +150,6 @@ func main() {
 		return
 	}
 	log.Printf("dir: %s\n", dir)
-
-	/*
-		svcConfig := &service.Config{
-			Name:        "mindoc-daemon",
-			DisplayName: "mindoc Daemon Service",
-			Description: "Service to start and monitor mindoc process",
-		}
-
-		prg := &program{}
-		s, err := service.New(prg, svcConfig)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if len(os.Args) > 1 {
-			err = service.Control(s, os.Args[1])
-			if err != nil {
-				log.Fatal(err)
-			}
-			return
-		}
-		logger, err = s.Logger(nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = s.Run()
-		if err != nil {
-			logger.Error(err)
-		}
-	*/
 
 	svcFlag := flag.String("service", "", "Control the system service.")
 	flag.Parse()
